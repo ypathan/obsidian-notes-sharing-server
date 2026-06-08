@@ -8,7 +8,7 @@ import (
 
 func main() {
 	port := ":8080"
-	dir := "/Users/myousuf/dev/obs-notes/obsdian-notes/dist/" 
+	dir := "/data/" 
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join(dir, filepath.Clean(r.URL.Path))
