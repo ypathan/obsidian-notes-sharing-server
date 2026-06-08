@@ -1,57 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func main() {
+	port := ":8080"
+	dir := "/Users/myousuf/dev/obs-notes/obsdian-notes/dist/" 
 
-	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-
-		fmt.Println("Request path:", r.URL.Path)
-		if r.URL.Path == "/favicon.ico"{
-			return
-		}
-
-		filename := r.URL.Query().Get("file")
-
-		if filename == "" {
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte("Bad Request"))
-			return
-		}
-
-		filePath := "/data/" + filename
-		fmt.Println("filename is: ", filePath)
-
-		info, err := os.Stat(filePath)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		path := filepath.Join(dir, filepath.Clean(r.URL.Path))
+		
+		// Get file info
+		info, err := os.Stat(path)
 		if err != nil {
-			fmt.Println("Unauthorized Access Prohibited")
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte("Unauthorized Access Prohibited"))
+			if os.IsNotExist(err) {
+				http.NotFound(w, r)
+			} else {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 			return
 		}
-
+		
+		// If it's a directory, return 404
 		if info.IsDir() {
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte("Cannot Access Dir"))
+			http.NotFound(w, r)
 			return
 		}
-
-		file_bytes, err := os.ReadFile(filePath)
-		if err != nil {
-			fmt.Println("error reading file content")
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte("error reading file content"))
-			return
-		}
-
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(file_bytes)
+		
+		// Serve the file
+		http.ServeFile(w, r, path)
 	})
 
-	http.ListenAndServe(":8080", nil)
-
+	println("Server running at http://localhost" + port)
+	println("Directories will NOT be served (404)")
+	http.ListenAndServe(port, nil)
 }
