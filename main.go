@@ -30,7 +30,13 @@ func checkSignToken(receivedToken string, storedToken string) bool {
 
 func main() {
 	port := ":8080"
+
+
 	dir := "/Users/myousuf/dev/obs-notes/obsdian-notes/dist/"
+
+	if os.Getenv("env") == "prod"  {
+		dir = "/data/"
+	}
 
 	err := godotenv.Load()
 	if err != nil {
