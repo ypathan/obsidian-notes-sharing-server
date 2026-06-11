@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/joho/godotenv"
 )
 
 
@@ -31,11 +30,6 @@ func checkSignToken(receivedToken string, storedToken string) bool {
 func main() {
 	port := ":8080"
 	dir := "/Users/myousuf/dev/obs-notes/obsdian-notes/dist/"
-
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file: %v", err)
-	}
 
 	if os.Getenv("env") == "prod"  {
 		dir = "/data/"
@@ -69,7 +63,7 @@ func main() {
 	})
 
 	mux.HandleFunc("GET /login", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "admin.html")
+		http.ServeFile(w, r, "static/admin.html")
 	})
 
 	mux.HandleFunc("POST /login", func(w http.ResponseWriter, r *http.Request) {
@@ -149,10 +143,11 @@ func main() {
 		return
 	}))
 
-	err = http.ListenAndServe(port, mux)
+	println("Server running at http://localhost" + port)
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		fmt.Println("Error starting server")
 	}
-	println("Server running at http://localhost" + port)
-	println("Directories will NOT be served (404)")
+
+
 }

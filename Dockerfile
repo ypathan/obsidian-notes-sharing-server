@@ -6,5 +6,7 @@ RUN go build -o file_server
 FROM alpine:3.14
 WORKDIR /app
 COPY --from=builder /app/file_server .
+COPY --from=builder /app/file_server/static/ .
+
 EXPOSE 8080
 CMD ["./file_server"]
